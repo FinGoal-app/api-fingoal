@@ -22,6 +22,11 @@ const updatePassword = async (id, hashedPassword) => {
   }
 
 // Fungsi untuk mencari pengguna berdasarkan id
+const findUserById = async (id) => {
+  const [results] = await pool.query('SELECT * FROM users WHERE id = ?', [id]);
+  return results;
+}
+
 
 // Fungsi untuk mencari pengguna berdasarkan email
 const findUserByEmail = async (email) => {
@@ -32,6 +37,7 @@ const findUserByEmail = async (email) => {
 module.exports = {
   checkUserExists,
   addUser,
+  findUserById,
   findUserByEmail,
   updatePassword,
 };
