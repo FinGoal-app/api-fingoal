@@ -25,7 +25,7 @@ app.get('/test', async (req, res) => {
 });
 
 // Menjalankan server
-const port = 3000;
+const port = 8080;
 app.listen(port, () => {
   console.log(`Server berjalan di http://localhost:${port}`);
 });
