@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const { register, login, googleLogin } = require('../controllers/authController');
 const { body } = require('express-validator');
+const { updatePassword } = require('../models/userModel');
 
 // Validasi untuk registrasi
 const validateRegister = [
@@ -14,6 +15,7 @@ const validateRegister = [
 
 // Endpoint untuk registrasi manual
 router.post('/register', validateRegister, register);
+router.post('/update', updatePassword)
 
 // Endpoint untuk login manual
 router.post('/login', login);

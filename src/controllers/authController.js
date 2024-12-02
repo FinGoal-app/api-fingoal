@@ -54,4 +54,25 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { register, login };
+//  fungsi ganti password
+const gantiPassword = async (req, res) => {
+  const { passwordLama, passwordBaru } = req.body;
+  const { id } = req.user;
+  try {
+    const user = await userModel.findUserById(id);
+    if (bcrypt.compareSync(passwordLama, user.password)) {
+      const hashedPassword = bcrypt.hashSync(passwordBaru, 10);
+      await userModel.updatePassword(id, hashedPassword);
+      res.status(200).json({ message: "Password berhasil diganti" });
+    } else {
+      res.status(401).json({ message: "Password lama salah" });
+    }
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ message: "Terjadi kesalahan pada server", error: err.message });
+  }
+};
+
+module.exports = { register, login, gantiPassword };
