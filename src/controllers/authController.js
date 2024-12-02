@@ -56,8 +56,8 @@ const login = async (req, res) => {
 
 //  fungsi ganti password
 const gantiPassword = async (req, res) => {
-  const { passwordLama, passwordBaru } = req.body;
-  const { id } = req.user;
+  const { passwordLama, passwordBaru, id } = req.body;
+  // const { id } = req.user;
   try {
     const user = await userModel.findUserById(id);
     if (bcrypt.compareSync(passwordLama, user.password)) {
