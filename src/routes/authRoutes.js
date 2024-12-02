@@ -17,9 +17,11 @@ const validateUpdatePassword = [
   body('passwordBaru').isLength({ min: 6 }).withMessage('Password minimal 6 karakter'),
 ];
 
-// Endpoint untuk registrasi manual
+// Endpoin untuk register
 router.post('/register', validateRegister, register);
-router.post('/update',validateUpdatePassword ,updatePassword);
+
+// Endpoin untuk update Password
+router.post('/updatePassword', validateUpdatePassword, updatePassword);
 
 // Endpoint untuk login manual
 router.post('/login', login);
