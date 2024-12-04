@@ -2,10 +2,10 @@ const mysql = require('mysql2');
 
 // Konfigurasi koneksi database
 const pool = mysql.createPool({
-  host: '34.101.38.70',
-  user: 'db-instance',
-  password: 'mypassword',
-  database: 'fingoal',
+  host: '34.128.125.71',
+  user: 'fingoal',
+  password: 'fingoal-app',
+  database: 'fingoal_app',
   port: 3306,
 });
 
