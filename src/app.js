@@ -2,6 +2,7 @@
 const express = require('express');
 const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
+const moneyRoutes = require('./routes/moneyRoutes');
 
 const app = express();
 
@@ -11,6 +12,7 @@ app.use(cors());
 
 // Menggunakan router
 app.use('/auth', authRoutes);
+app.use('/money', moneyRoutes);
 
 // Test endpoint untuk koneksi database
 app.get('/test', async (req, res) => {
@@ -25,7 +27,7 @@ app.get('/test', async (req, res) => {
 });
 
 // Menjalankan server
-const port = 8080;
+const port = 3000;
 app.listen(port, () => {
   console.log(`Server berjalan di http://localhost:${port}`);
 });

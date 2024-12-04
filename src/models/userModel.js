@@ -16,17 +16,10 @@ const addUser = async (nama, email, hashedPassword) => {
 
 // Fungsi untuk mengubah password
 const updatePassword = async (id, hashedPassword) => {
-  const [result] = await pool.query('UPDATE users SET password = ? WHERE id = ?',
+  const [result] = await pool.query('UPDATE users SET password = ? WHERE id_users = ?',
     [hashedPassword, id]);
     return result;
   }
-
-// Fungsi untuk mencari pengguna berdasarkan id
-const findUserById = async (id) => {
-  const [results] = await pool.query('SELECT * FROM users WHERE id = ?', [id]);
-  return results;
-}
-
 
 // Fungsi untuk mencari pengguna berdasarkan email
 const findUserByEmail = async (email) => {
@@ -37,7 +30,6 @@ const findUserByEmail = async (email) => {
 module.exports = {
   checkUserExists,
   addUser,
-  findUserById,
   findUserByEmail,
   updatePassword,
 };
