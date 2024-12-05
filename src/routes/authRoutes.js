@@ -15,8 +15,8 @@ const validateRegister = [
 // Endpoin untuk register
 router.post('/register',validateRegister, register);
 
-// Endpoin user_jwt
-router.get('/', userJwt, userJwtConfig)
+// Endpoin get data user
+router.get('/user', userJwt, userJwtConfig);
 
 // Endpoin Home
 

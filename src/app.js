@@ -30,7 +30,7 @@ app.get('/test', async (req, res) => {
 });
 
 // Menjalankan server
-const port = process.env.PORT || 3000;
+const port = 3000 || process.env.PORT;
 app.listen(port, () => {
   console.log(`Server berjalan di PORT : ${port}`);
 });

@@ -1,34 +1,34 @@
 const express = require('express');
 const router = express.Router();
-const { tambahIncome, tambahExpense, tampilHistory } = require('../controllers/moneyController');
-const { body } = require('express-validator');
+const { 
+  tambahIncome, 
+  tambahExpense, 
+  tampilHistory, 
+  tambahSaving,
+  tambahAllocation,
+  tambahGoal
+} = require('../controllers/moneyController');
 const userJwt = require('../middleware/userJwt');
 const { userJwtConfig } = require('../controllers/authController');
-
-const validateTambahIncome = [
-  body('amount')
-  .notEmpty().withMessage('Amount tidak boleh kosong').bail()
-  .isNumeric().withMessage('Amount harus berupa angka'),
-  body('tujuan').notEmpty().withMessage('Tujuan tidak boleh kosong'),
-];
-
-const validateTambahExpense = [
-  body('provider').notEmpty().withMessage('Provider tidak boleh kosong'),
-  body('amount')
-  .notEmpty().withMessage('Amount tidak boleh kosong').bail()
-  .isNumeric().withMessage('Amount harus berupa angka'),
-  body('tujuan').notEmpty().withMessage('Tujuan tidak boleh kosong'),
-];
 
 router.get('/', userJwt, userJwtConfig);
 
 // Endpoin untuk tambahIncome
-router.post('/tambahIncome', validateTambahIncome, tambahIncome);
+router.post('/income', userJwt, tambahIncome);
 
 // Endpoin untuk tambahExpense
-router.post('/tambahExpense', validateTambahExpense, tambahExpense);
+router.post('/expense', userJwt, tambahExpense);
+
+// Endpoin untuk tambahSaving
+router.post('/saving', userJwt, tambahSaving);
+
+// Endpoin untuk tambahAllocation
+router.post('/allocation', userJwt, tambahAllocation);
+
+// Endpoin untuk tambahGoal
+router.post('/goal', userJwt, tambahGoal);
 
 // Endpoin untuk mengambil data history
-router.post('/history', tampilHistory);
+router.get('/history', userJwt, tampilHistory);
 
 module.exports = router;

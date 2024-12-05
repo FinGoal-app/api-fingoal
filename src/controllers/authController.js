@@ -7,14 +7,6 @@ const jwt = require("jsonwebtoken");
 // Fungsi registrasi manual
 const register = async (req, res) => {
   const { nama, email, password } = req.body;
-  const errors = validationResult(req);
-
-  if (!errors.isEmpty()) {
-    return res.json({
-      success: false,
-      errors: errors.array(),
-    });
-  }
 
   try {
     // Periksa apakah email sudah ada
@@ -23,7 +15,7 @@ const register = async (req, res) => {
     if (existingUser.length > 0) {
       return res.json({
         success: false,
-        msg: "Email sudah terdaftar",
+        message: "Email sudah terdaftar",
       });
     }
 
@@ -39,9 +31,7 @@ const register = async (req, res) => {
       },
     };
 
-    jwt.sign(payload, process.env.jwtUserSecret, {
-      expiresIn: "1h",
-    }, (err, token) => {
+    jwt.sign(payload, process.env.jwtUserSecret, {}, (err, token) => {
       if (err) throw err;
       return res.status(200).json({
         success: true,
@@ -50,27 +40,30 @@ const register = async (req, res) => {
     });
   } catch (err) {
     console.log(err);
+    res.status(500).json({
+      message: 'Terjadi kesalahan pada server',
+      error: err.message
+    });
   }
 };
 
 const userJwtConfig = async (req, res) => {
-  
   try {
     const user = await userModel.getUserById(req.user.id_user);
 
     return res.status(200).json({
       success: true,
-      user: user
-    })
+      user: user,
+    });
   } catch (error) {
     console.log(error.message);
     return res.status(500).json({
       success: false,
-      msg: "Internal Server Error"
-    })
+      message: "Terjadi kesalahan pada server",
+      error: err.message
+    });
   }
-
-}
+};
 
 // Fungsi login manual
 const login = async (req, res) => {
@@ -82,8 +75,8 @@ const login = async (req, res) => {
     if (!user) {
       return res.status(400).json({
         success: false,
-        msg: "Email belum terdaftar",
-      })
+        message: "Email belum terdaftar",
+      });
     }
 
     const isMatched = bcrypt.compareSync(password, user.password);
@@ -91,33 +84,31 @@ const login = async (req, res) => {
     if (!isMatched) {
       return res.status(401).json({
         success: false,
-        msg: "Password salah",
-      })
+        message: "Password salah",
+      });
     }
 
     const payload = {
       user: {
-        id_user: user.id_user
-      }
-    }
+        id_user: user.id_user,
+      },
+    };
 
-    jwt.sign(payload, process.env.jwtUserSecret, {
-      expiresIn: '1h'
-    }, (err, token) => {
-      if(err) throw err;
+    jwt.sign(payload, process.env.jwtUserSecret, {}, (err, token) => {
+      if (err) throw err;
       res.json({
         success: true,
-        msg: 'Berhasil Login',
+        message: "Berhasil Login",
         token: token,
-        user: user
-      })
-    })
-
+        user: user,
+      });
+    });
   } catch (err) {
     console.error(err);
-    res
-      .status(500)
-      .json({ message: "Terjadi kesalahan pada server", error: err.message });
+    res.status(500).json({ 
+      message: "Terjadi kesalahan pada server", 
+      error: err.message 
+    });
   }
 };
 

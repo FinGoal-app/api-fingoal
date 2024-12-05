@@ -1,40 +1,28 @@
 const moneyModel = require("../models/moneyModel");
-const { validationResult } = require("express-validator");
 
 const tambahIncome = async (req, res) => {
-  const { amount, tujuan } = req.body;
-  const { id_user } = req.user.id_user;
-
-  // Cek Validasi Input
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
+  const { amount, sumber } = req.body;
+  const id_user = req.user.id_user;
 
   try {
     const numericAmount = +amount;
-    const history = await moneyModel.addIncome(id_user, numericAmount, tujuan);
+    const history = await moneyModel.addIncome(id_user, numericAmount, sumber);
 
     res.status(201).json({
-      message: "Berhasil menambahkan income",
+      message: "Income berhasil ditambahkan",
       data: history,
     });
   } catch (err) {
-    console.error(err);
-    res
-      .status(500)
-      .json({ message: "Terjadi kesalahan pada server", error: err.message });
+    res.status(500).json({
+      message: "Terjadi kesalahan pada server",
+      error: err.message,
+    });
   }
 };
 
 const tambahExpense = async (req, res) => {
-  const { id_user, provider, amount, tujuan } = req.body;
-
-  // Cek validasi Input
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
+  const { provider, amount, tujuan } = req.body;
+  const id_user = req.user.id_user;
 
   try {
     const numericAmount = +amount;
@@ -52,7 +40,7 @@ const tambahExpense = async (req, res) => {
         );
 
         res.status(201).json({
-          message: "Berhasil menambahkan Expense",
+          message: "Expense berhasil ditambahkan",
           data: history,
         });
       } else {
@@ -70,7 +58,7 @@ const tambahExpense = async (req, res) => {
         );
 
         res.status(201).json({
-          message: "Berhasil menambahkan Expense",
+          message: "Expense berhasil ditambahkan",
           data: history,
         });
       } else {
@@ -81,15 +69,71 @@ const tambahExpense = async (req, res) => {
     }
   } catch (err) {
     console.error(err);
-    res
-      .status(500)
-      .json({ message: "Terjadi kesalahan pada server", error: err.message });
+    res.status(500).json({
+      message: "Terjadi kesalahan pada server",
+      error: err.message,
+    });
+  }
+};
+
+const tambahSaving = async (req, res) => {
+  try {
+    const id_user = req.user.id_user;
+    const { amount } = req.body;
+
+    const history = await moneyModel.addSavings(id_user, amount);
+    res.status(201).json({
+      message: "Saving berhasil ditambahkan",
+      data: history,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      message: "Terjadi kesalahan pada server",
+      error: err.message,
+    });
+  }
+};
+
+const tambahAllocation = async (req, res) => {
+  try {
+    const id_user = req.user.id_user;
+    const { amount, kategori } = req.body;
+    const history = await moneyModel.addAllocation(id_user, kategori, amount);
+    res.status(201).json({
+      message: "Allocation berhasil ditambahkan",
+      data: history,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      message: "Terjadi kesalahan pada server",
+      error: err.message,
+    });
+  }
+};
+
+const tambahGoal = async (req, res) => {
+  try {
+    const id_user = req.user.id_user;
+    const { goal, amount, target, description } = req.body;
+    const history = await moneyModel.addGoals(id_user, goal, amount, target, description);
+    res.status(201).json({
+      message: "Goals berhasil ditambahkan",
+      data: history,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      message: "Terjadi kesalahan pada server",
+      error: err.message,
+    });
   }
 };
 
 const tampilHistory = async (req, res) => {
   try {
-    const id_user = req.body;
+    const id_user = req.user.id_user;
 
     const data = await moneyModel.getHistory(id_user);
     res.status(200).json({
@@ -98,14 +142,18 @@ const tampilHistory = async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res
-      .status(500)
-      .json({ message: "Terjadi kesalahan pada server", error: err.message });
+    res.status(500).json({
+      message: "Terjadi kesalahan pada server",
+      error: err.message,
+    });
   }
 };
 
 module.exports = {
   tambahIncome,
   tambahExpense,
-  tampilHistory
+  tampilHistory,
+  tambahSaving,
+  tambahAllocation,
+  tambahGoal,
 };
