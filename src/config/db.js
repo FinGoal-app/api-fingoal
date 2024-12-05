@@ -1,8 +1,9 @@
 const mysql = require('mysql2');
 
 // Konfigurasi koneksi database
+const host = process.env.HOST;
 const pool = mysql.createPool({
-  host: '34.128.125.71',
+  host: host,
   user: 'fingoal',
   password: 'fingoal-app',
   database: 'fingoal_app',

@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { tambahIncome, tambahExpense } = require('../controllers/moneyController');
+const { tambahIncome, tambahExpense, tampilHistory } = require('../controllers/moneyController');
 const { body } = require('express-validator');
+const userJwt = require('../middleware/userJwt');
+const { userJwtConfig } = require('../controllers/authController');
 
 const validateTambahIncome = [
   body('amount')
@@ -18,10 +20,15 @@ const validateTambahExpense = [
   body('tujuan').notEmpty().withMessage('Tujuan tidak boleh kosong'),
 ];
 
+router.get('/', userJwt, userJwtConfig);
+
 // Endpoin untuk tambahIncome
 router.post('/tambahIncome', validateTambahIncome, tambahIncome);
 
 // Endpoin untuk tambahExpense
 router.post('/tambahExpense', validateTambahExpense, tambahExpense);
+
+// Endpoin untuk mengambil data history
+router.post('/history', tampilHistory);
 
 module.exports = router;
