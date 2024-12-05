@@ -1,8 +1,9 @@
 // routes/authRoutes.js
 const express = require('express');
 const router = express.Router();
-const { register, login } = require('../controllers/authController');
+const { register, login, userJwtConfig } = require('../controllers/authController');
 const { body } = require('express-validator');
+const userJwt = require('../middleware/userJwt');
 
 // Validasi untuk registrasi
 const validateRegister = [
@@ -12,7 +13,12 @@ const validateRegister = [
 ];
 
 // Endpoin untuk register
-router.post('/register', validateRegister, register);
+router.post('/register',validateRegister, register);
+
+// Endpoin user_jwt
+router.get('/', userJwt, userJwtConfig)
+
+// Endpoin Home
 
 // Endpoint untuk login manual
 router.post('/login', login);

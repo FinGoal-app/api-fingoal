@@ -9,6 +9,12 @@ const addIncome = async (id_user, amount, tujuan) => {
       "INSERT INTO incomes (id_user, amount, tujuan) VALUES (?, ? ,?)",
       [id_user, amount, tujuan]
     );
+    // menambahkan data ke history
+    await pool.query(
+      "INSERT INTO history (id_user, amount, tujuan) VALUES (?, ? ,?)",
+      [id_user, amount, tujuan]
+    );
+
     // update balance user
     await pool.query("UPDATE users SET balance = ? WHERE id_user = ?", [
       balance,
@@ -23,8 +29,8 @@ const addIncome = async (id_user, amount, tujuan) => {
       savings: savings,
       amount: amount,
       tujuan: tujuan,
-      created_at : new Date().toISOString(),
-      updated_at : new Date().toISOString()
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     };
     return history;
   } catch (err) {
@@ -42,22 +48,28 @@ const addExpense = async (id_user, provider, amount, tujuan) => {
       "INSERT INTO expenses (id_user, provider, amount, tujuan) VALUES (?, ?, ?, ?)",
       [id_user, provider, amount, tujuan]
     );
-    
+
+    // menambahkan data ke history
+    await pool.query(
+      "INSERT INTO history (id_user, amount, tujuan) VALUES (?, ? ,?)",
+      [id_user, amount, tujuan]
+    );
+
     const user = await queryUsers(id_user);
     // update balance pada user
     if (provider === "balance") {
       const balance = user.balance - amount;
-      await pool.query(
-        "UPDATE users SET balance = ? WHERE id_user = ?",
-        [balance, id_user]
-      );
-    }else {
+      await pool.query("UPDATE users SET balance = ? WHERE id_user = ?", [
+        balance,
+        id_user,
+      ]);
+    } else {
       const savings = user.savings - amount;
-      await pool.query(
-        "UPDATE users SET savings = ? WHERE id_user = ?",
-        [savings, id_user]
-      );
-    };
+      await pool.query("UPDATE users SET savings = ? WHERE id_user = ?", [
+        savings,
+        id_user,
+      ]);
+    }
     const newUserData = await queryUsers(id_user);
     const balanceUser = newUserData.balance;
     const savingsUser = newUserData.savings;
@@ -70,8 +82,8 @@ const addExpense = async (id_user, provider, amount, tujuan) => {
       amount: amount,
       tujuan: tujuan,
       created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    }
+      updated_at: new Date().toISOString(),
+    };
     return history;
   } catch (err) {
     return {
@@ -79,12 +91,21 @@ const addExpense = async (id_user, provider, amount, tujuan) => {
       message: "Error add expense",
     };
   }
-}
+};
+
+const getHistory = async (id_user) => {
+  const [resultHistory] = await pool.query(
+    "SELECT * FROM history WHERE id_user = ? ORDER BY updated_at DESC",
+    [id_user]
+  );
+  return resultHistory;
+};
 
 const queryUsers = async (id_user) => {
-  const [results] = await pool.query("SELECT * FROM users WHERE id_user = ?", [
-    id_user,
-  ]);
+  const [results] = await pool.query(
+    "SELECT * FROM users WHERE id_user = ?", 
+    [id_user]
+  );
   return results[0];
 };
 
@@ -92,4 +113,5 @@ module.exports = {
   addIncome,
   queryUsers,
   addExpense,
+  getHistory,
 };

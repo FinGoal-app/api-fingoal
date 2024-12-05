@@ -1,4 +1,5 @@
-// app.js
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
@@ -11,6 +12,8 @@ app.use(express.json());
 app.use(cors());
 
 // Menggunakan router
+app.use('/', authRoutes);
+app.use('/', moneyRoutes);
 app.use('/auth', authRoutes);
 app.use('/money', moneyRoutes);
 
@@ -27,7 +30,7 @@ app.get('/test', async (req, res) => {
 });
 
 // Menjalankan server
-const port = 8080;
+const port = process.env.PORT || 3000;
 app.listen(port, () => {
-  console.log(`Server berjalan di http://localhost:${port}`);
+  console.log(`Server berjalan di PORT : ${port}`);
 });
