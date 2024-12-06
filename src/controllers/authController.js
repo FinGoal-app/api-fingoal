@@ -1,6 +1,5 @@
 // controllers/authController.js
 const bcrypt = require("bcryptjs");
-const { validationResult } = require("express-validator");
 const userModel = require("../models/userModel");
 const jwt = require("jsonwebtoken");
 
@@ -99,8 +98,12 @@ const login = async (req, res) => {
       res.json({
         success: true,
         message: "Berhasil Login",
-        token: token,
-        user: user,
+        user: {
+          id_user: user.id_user,
+          nama: user.nama,
+          email: user.email,
+          token: token
+        }
       });
     });
   } catch (err) {

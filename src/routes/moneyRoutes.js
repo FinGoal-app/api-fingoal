@@ -6,7 +6,12 @@ const {
   tampilHistory, 
   tambahSaving,
   tambahAllocation,
-  tambahGoal
+  tambahGoal,
+  tampilHome,
+  ubahAllocation,
+  ubahGoal,
+  hapusAllocation,
+  hapusGoal
 } = require('../controllers/moneyController');
 const userJwt = require('../middleware/userJwt');
 const { userJwtConfig } = require('../controllers/authController');
@@ -24,11 +29,22 @@ router.post('/saving', userJwt, tambahSaving);
 
 // Endpoin untuk tambahAllocation
 router.post('/allocation', userJwt, tambahAllocation);
+// Endpoin untuk ubahAllocation
+router.put('/allocation/:id', userJwt, ubahAllocation);
+// Endpoin untuk hapusAllocation
+router.delete('/allocation/:id', userJwt, hapusAllocation);
 
 // Endpoin untuk tambahGoal
 router.post('/goal', userJwt, tambahGoal);
+// Endpoin untuk ubahGoal
+router.put('/goal/:id', userJwt, ubahGoal);
+// Endpoin untuk hapusGoal
+router.delete('/goal/:id', userJwt, hapusGoal);
 
 // Endpoin untuk mengambil data history
 router.get('/history', userJwt, tampilHistory);
+
+// Endpoin untuk menampilkan data di home
+router.get('/home', userJwt, tampilHome);
 
 module.exports = router;
