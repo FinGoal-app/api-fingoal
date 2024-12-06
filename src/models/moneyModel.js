@@ -165,6 +165,26 @@ const addAllocations = async (id_user, kategori, amount) => {
 
 const updateAllocation = async (id, amount, kategori, id_user) => {
   try {
+    const user = await queryUsers(id_user);
+    const amountUserBefore = user.amount_allocation;
+    const [allocation] = await pool.query('SELECT * FROM allocations WHERE id_allocation = ?',[id]);
+    const amountAllocation = allocation[0].amount;
+    
+    if (amountAllocation < amount) {
+      const currentAmount = amount - amountAllocation;
+      const jmlAllocation = user.amount_allocation + currentAmount;
+      await pool.query(
+        "UPDATE users SET amount_allocation = ? WHERE id_user = ?",
+        [jmlAllocation, id_user]
+      );
+    } else {
+      const currentAmount = amountAllocation - amount;
+      const jmlAllocation = user.amount_allocation - currentAmount;
+      await pool.query(
+        "UPDATE users SET amount_allocation = ? WHERE id_user = ?",
+        [jmlAllocation, id_user]
+      );
+    }
     const id_history = `h${nanoid(6)}y`
     await pool.query(
       "UPDATE allocations SET amount = ?, kategori = ? WHERE id_allocation = ?",
@@ -175,8 +195,13 @@ const updateAllocation = async (id, amount, kategori, id_user) => {
       "INSERT INTO history (id_history, id_user ,kategori, amount, label) VALUES (?, ? ,? ,? ,?)",
       [id_history, id_user, 'allocation', amount, kategori]
     );
+    const newUser = await queryUsers(id_user);
+    const amountUserAfter = newUser.amount_allocation;
     const updateResult = {
       id_allocation: id,
+      id_user: id_user,
+      jml_before_update : amountUserBefore,
+      jml_after_update : amountUserAfter,
       amount: amount,
       kategori: kategori,
     };
