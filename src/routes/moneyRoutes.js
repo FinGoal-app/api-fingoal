@@ -11,7 +11,8 @@ const {
   ubahAllocation,
   ubahGoal,
   hapusAllocation,
-  hapusGoal
+  hapusGoal,
+  tampilGoal
 } = require('../controllers/moneyController');
 const userJwt = require('../middleware/userJwt');
 const { userJwtConfig } = require('../controllers/authController');
@@ -40,6 +41,8 @@ router.post('/goal', userJwt, tambahGoal);
 router.put('/goal/:id', userJwt, ubahGoal);
 // Endpoin untuk hapusGoal
 router.delete('/goal/:id', userJwt, hapusGoal);
+// Endpoin untuk mengambil data Goal
+router.get('/goal', userJwt, tampilGoal);
 
 // Endpoin untuk mengambil data history
 router.get('/history', userJwt, tampilHistory);

@@ -259,6 +259,14 @@ const getHistory = async (id_user) => {
   return resultHistory;
 };
 
+const getGoal = async (id_user) => {
+  const [resultGoal] = await pool.query(
+    "SELECT * FROM goals WHERE id_user = ? ORDER BY created_at DESC",
+    [id_user]
+  );
+  return resultGoal;
+}
+
 const getHome = async (id_user) => {
   const user = await queryUsers(id_user);
   const [resultHistory] = await pool.query(
@@ -315,5 +323,6 @@ module.exports = {
   addGoals,
   updateGoal,
   deleteGoal,
+  getGoal,
   getHome,
 };

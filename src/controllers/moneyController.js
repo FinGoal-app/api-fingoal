@@ -80,8 +80,8 @@ const tambahSaving = async (req, res) => {
   try {
     const id_user = req.user.id_user;
     const { amount } = req.body;
-
-    const history = await moneyModel.addSavings(id_user, amount);
+    const numericAmount = +amount;
+    const history = await moneyModel.addSavings(id_user, numericAmount);
     res.status(201).json({
       message: "Saving berhasil ditambahkan",
       addSaving: history,
@@ -99,7 +99,8 @@ const tambahAllocation = async (req, res) => {
   try {
     const id_user = req.user.id_user;
     const { amount, kategori } = req.body;
-    const history = await moneyModel.addAllocations(id_user, kategori, amount);
+    const numericAmount = +amount;
+    const history = await moneyModel.addAllocations(id_user, kategori, numericAmount);
     res.status(201).json({
       message: "Allocation berhasil ditambahkan",
       addAllocation: history,
@@ -118,10 +119,10 @@ const ubahAllocation = async (req, res) => {
     const { amount, kategori } = req.body;
     const id = req.params.id;
     const id_user = req.user.id_user;
-
+    const numericAmount = +amount;
     const history = await moneyModel.updateAllocation(
       id,
-      amount,
+      numericAmount,
       kategori,
       id_user
     );
@@ -160,16 +161,14 @@ const tambahGoal = async (req, res) => {
   try {
     const id_user = req.user.id_user;
     const { goal, amount, target, description } = req.body;
-    const amountNum = Number(amount);
-    const targetNum = Number(target);
-    console.log(amountNum);
-    console.log(targetNum);
-    
+    const numericAmount = +amount;
+    const numericTarget = +amount;
+
     const history = await moneyModel.addGoals(
       id_user,
       goal,
-      amountNum,
-      targetNum,
+      numericAmount,
+      numericTarget,
       description
     );
     res.status(201).json({
@@ -190,11 +189,13 @@ const ubahGoal = async (req, res) => {
     const id_user = req.user.id_user;
     const id = req.params.id;
     const { goal, amount, target, description } = req.body;
+    const numericAmount = +amount;
+    const numericTarget = +target;
     const history = await moneyModel.updateGoal(
       id,
       goal,
-      amount,
-      target,
+      numericAmount,
+      numericTarget,
       description,
       id_user
     );
@@ -215,11 +216,28 @@ const hapusGoal = async (req, res) => {
   try {
     const id_user = req.user.id_user;
     const id = req.params.id;
-    
+
     const history = await moneyModel.deleteGoal(id, id_user);
     res.status(200).json({
       message: "Goals berhasil dihapus",
       deleteGoal: history,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      message: "Terjadi kesalahan pada server",
+      error: err.message,
+    });
+  }
+};
+
+const tampilGoal = async (req, res) => {
+  try {
+    const id_user = req.user.id_user;
+    const goals = await moneyModel.getGoal(id_user);
+    res.status(200).json({
+      message: "Goals berhasil ditampilkan",
+      showGoal: goals,
     });
   } catch (err) {
     console.error(err);
@@ -276,5 +294,6 @@ module.exports = {
   tambahGoal,
   ubahGoal,
   hapusGoal,
+  tampilGoal,
   tampilHome,
 };
