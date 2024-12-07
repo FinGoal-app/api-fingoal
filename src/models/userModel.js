@@ -20,7 +20,7 @@ const addUser = async (nama, email, hashedPassword) => {
       email, 
       hashedPassword
     ]);
-  return result.insertId;
+  return id_user;
 };
 
 // Fungsi untuk mencari pengguna berdasarkan id tanpa password
