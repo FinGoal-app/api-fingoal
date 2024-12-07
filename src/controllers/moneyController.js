@@ -10,7 +10,7 @@ const tambahIncome = async (req, res) => {
 
     res.status(201).json({
       message: "Income berhasil ditambahkan",
-      data: history,
+      addIncome: history,
     });
   } catch (err) {
     res.status(500).json({
@@ -41,7 +41,7 @@ const tambahExpense = async (req, res) => {
 
         res.status(201).json({
           message: "Expense berhasil ditambahkan",
-          data: history,
+          addExpense: history,
         });
       } else {
         res.status(400).json({
@@ -59,7 +59,7 @@ const tambahExpense = async (req, res) => {
 
         res.status(201).json({
           message: "Expense berhasil ditambahkan",
-          data: history,
+          addExpense: history,
         });
       } else {
         res.status(400).json({
@@ -84,7 +84,7 @@ const tambahSaving = async (req, res) => {
     const history = await moneyModel.addSavings(id_user, amount);
     res.status(201).json({
       message: "Saving berhasil ditambahkan",
-      data: history,
+      addSaving: history,
     });
   } catch (err) {
     console.error(err);
@@ -102,7 +102,7 @@ const tambahAllocation = async (req, res) => {
     const history = await moneyModel.addAllocations(id_user, kategori, amount);
     res.status(201).json({
       message: "Allocation berhasil ditambahkan",
-      data: history,
+      addAllocation: history,
     });
   } catch (err) {
     console.error(err);
@@ -127,7 +127,7 @@ const ubahAllocation = async (req, res) => {
     );
     res.status(200).json({
       message: "Allocation berhasil diubah",
-      data: history,
+      updateAllocation: history,
     });
   } catch (err) {
     console.error(err);
@@ -145,7 +145,7 @@ const hapusAllocation = async (req, res) => {
     const history = await moneyModel.deleteAllocation(id, id_user);
     res.status(200).json({
       message: "Allocation berhasil dihapus",
-      data: history,
+      deleteAllocation: history,
     });
   } catch (err) {
     console.error(err);
@@ -160,16 +160,21 @@ const tambahGoal = async (req, res) => {
   try {
     const id_user = req.user.id_user;
     const { goal, amount, target, description } = req.body;
+    const amountNum = Number(amount);
+    const targetNum = Number(target);
+    console.log(amountNum);
+    console.log(targetNum);
+    
     const history = await moneyModel.addGoals(
       id_user,
       goal,
-      amount,
-      target,
+      amountNum,
+      targetNum,
       description
     );
     res.status(201).json({
       message: "Goals berhasil ditambahkan",
-      data: history,
+      addGoal: history,
     });
   } catch (err) {
     console.error(err);
@@ -195,7 +200,7 @@ const ubahGoal = async (req, res) => {
     );
     res.status(200).json({
       message: "Goals berhasil diubah",
-      data: history,
+      updateGoal: history,
     });
   } catch (err) {
     console.error(err);
@@ -214,7 +219,7 @@ const hapusGoal = async (req, res) => {
     const history = await moneyModel.deleteGoal(id, id_user);
     res.status(200).json({
       message: "Goals berhasil dihapus",
-      data: history,
+      deleteGoal: history,
     });
   } catch (err) {
     console.error(err);
@@ -232,7 +237,7 @@ const tampilHistory = async (req, res) => {
     const data = await moneyModel.getHistory(id_user);
     res.status(200).json({
       message: "Berhasil mengambil data history",
-      data: data,
+      showHistory: data,
     });
   } catch (err) {
     console.error(err);
@@ -249,7 +254,7 @@ const tampilHome = async (req, res) => {
     const data = await moneyModel.getHome(id_user);
     res.status(200).json({
       message: "Berhasil mengambil data home",
-      data: data,
+      showHome: data,
     });
   } catch (err) {
     console.error(err);
