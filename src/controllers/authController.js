@@ -2,10 +2,15 @@
 const bcrypt = require("bcryptjs");
 const userModel = require("../models/userModel");
 const jwt = require("jsonwebtoken");
+const { validationResult } = require('express-validator');
 
 // Fungsi registrasi manual
 const register = async (req, res) => {
   const { nama, email, password } = req.body;
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
 
   try {
     // Periksa apakah email sudah ada
@@ -67,6 +72,10 @@ const userJwtConfig = async (req, res) => {
 // Fungsi login manual
 const login = async (req, res) => {
   const { email, password } = req.body;
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
 
   try {
     let user = await userModel.findUserByEmail(email);

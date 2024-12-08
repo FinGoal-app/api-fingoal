@@ -1,56 +1,43 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const { 
-  tambahIncome, 
-  tambahExpense, 
-  tampilHistory, 
-  tambahSaving,
-  tambahAllocation,
-  tambahGoal,
-  tampilHome,
-  ubahAllocation,
-  ubahGoal,
-  hapusAllocation,
-  hapusGoal,
-  tampilGoal,
-  tampilAllocation,
-} = require('../controllers/moneyController');
-const userJwt = require('../middleware/userJwt');
-const { userJwtConfig } = require('../controllers/authController');
+const moneyController = require("../controllers/moneyController");
+const userJwt = require("../middleware/userJwt");
+const inputClient = require('../middleware/clientError');
+const { userJwtConfig } = require("../controllers/authController");
 
-router.get('/', userJwt, userJwtConfig);
+router.get("/", userJwt, userJwtConfig);
 
 // Endpoin untuk tambahIncome
-router.post('/income', userJwt, tambahIncome);
+router.post("/income", userJwt, inputClient.validateIncome, moneyController.tambahIncome);
 
 // Endpoin untuk tambahExpense
-router.post('/expense', userJwt, tambahExpense);
+router.post("/expense", userJwt, inputClient.validateExpense, moneyController.tambahExpense);
 
 // Endpoin untuk tambahSaving
-router.post('/saving', userJwt, tambahSaving);
+router.post("/saving", userJwt, inputClient.validateSaving, moneyController.tambahSaving);
 
 // Endpoin untuk tambahAllocation
-router.post('/allocation', userJwt, tambahAllocation);
+router.post("/allocation", userJwt, inputClient.validateAllocation, moneyController.tambahAllocation);
 // Endpoin untuk ubahAllocation
-router.put('/allocation/:id', userJwt, ubahAllocation);
+router.put("/allocation/:id", userJwt, inputClient.validateAllocation, moneyController.ubahAllocation);
 // Endpoin untuk hapusAllocation
-router.delete('/allocation/:id', userJwt, hapusAllocation);
+router.delete("/allocation/:id", userJwt, moneyController.hapusAllocation);
 // Endpoin untuk mengambil data Allocation
-router.get('/allocation', userJwt, tampilAllocation);
+router.get("/allocation", userJwt, moneyController.tampilAllocation);
 
 // Endpoin untuk tambahGoal
-router.post('/goal', userJwt, tambahGoal);
+router.post("/goal", userJwt, inputClient.validateGoal, moneyController.tambahGoal);
 // Endpoin untuk ubahGoal
-router.put('/goal/:id', userJwt, ubahGoal);
+router.put("/goal/:id", userJwt, inputClient.validateGoal, moneyController.ubahGoal);
 // Endpoin untuk hapusGoal
-router.delete('/goal/:id', userJwt, hapusGoal);
+router.delete("/goal/:id", userJwt, moneyController.hapusGoal);
 // Endpoin untuk mengambil data Goal
-router.get('/goal', userJwt, tampilGoal);
+router.get("/goal", userJwt, moneyController.tampilGoal);
 
 // Endpoin untuk mengambil data history
-router.get('/history', userJwt, tampilHistory);
+router.get("/history", userJwt, moneyController.tampilHistory);
 
 // Endpoin untuk menampilkan data di home
-router.get('/home', userJwt, tampilHome);
+router.get("/home", userJwt, moneyController.tampilHome);
 
 module.exports = router;

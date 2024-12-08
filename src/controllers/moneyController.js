@@ -1,8 +1,13 @@
+const { validationResult } = require("express-validator");
 const moneyModel = require("../models/moneyModel");
 
 const tambahIncome = async (req, res) => {
   const { amount, sumber } = req.body;
   const id_user = req.user.id_user;
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
 
   try {
     const numericAmount = +amount;
@@ -23,6 +28,10 @@ const tambahIncome = async (req, res) => {
 const tambahExpense = async (req, res) => {
   const { provider, amount, tujuan } = req.body;
   const id_user = req.user.id_user;
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
 
   try {
     const numericAmount = +amount;
@@ -77,6 +86,10 @@ const tambahExpense = async (req, res) => {
 };
 
 const tambahSaving = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
   try {
     const id_user = req.user.id_user;
     const { amount } = req.body;
@@ -96,6 +109,10 @@ const tambahSaving = async (req, res) => {
 };
 
 const tambahAllocation = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
   try {
     const id_user = req.user.id_user;
     const { amount, kategori } = req.body;
@@ -119,6 +136,10 @@ const tambahAllocation = async (req, res) => {
 };
 
 const ubahAllocation = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
   try {
     const { amount, kategori } = req.body;
     const id = req.params.id;
@@ -179,17 +200,20 @@ const tampilAllocation = async (req, res) => {
 };
 
 const tambahGoal = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
   try {
     const id_user = req.user.id_user;
     const { goal, amount, target, description } = req.body;
     const numericAmount = +amount;
-    const numericTarget = +amount;
 
     const data = await moneyModel.addGoals(
       id_user,
       goal,
       numericAmount,
-      numericTarget,
+      target,
       description
     );
     res.status(201).json({
@@ -206,17 +230,20 @@ const tambahGoal = async (req, res) => {
 };
 
 const ubahGoal = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
   try {
     const id_user = req.user.id_user;
     const id = req.params.id;
     const { goal, amount, target, description } = req.body;
     const numericAmount = +amount;
-    const numericTarget = +target;
     const data = await moneyModel.updateGoal(
       id,
       goal,
       numericAmount,
-      numericTarget,
+      target,
       description,
       id_user
     );
