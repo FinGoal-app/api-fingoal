@@ -26,7 +26,7 @@ const tambahIncome = async (req, res) => {
 };
 
 const tambahExpense = async (req, res) => {
-  const { provider, amount, tujuan } = req.body;
+  const { amount, tujuan } = req.body;
   const id_user = req.user.id_user;
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -37,44 +37,22 @@ const tambahExpense = async (req, res) => {
     const numericAmount = +amount;
     const user = await moneyModel.queryUsers(id_user);
     const balance = user.balance;
-    const savings = user.savings;
 
-    if (provider === "balance") {
-      if (balance >= numericAmount) {
-        const expense = await moneyModel.addExpenses(
-          id_user,
-          provider,
-          numericAmount,
-          tujuan
-        );
+    if (balance >= numericAmount) {
+      const expense = await moneyModel.addExpenses(
+        id_user,
+        numericAmount,
+        tujuan
+      );
 
-        res.status(201).json({
-          message: "Expense berhasil ditambahkan",
-          addExpense: expense,
-        });
-      } else {
-        res.status(400).json({
-          message: "Saldo atau Tabungan tidak cukup",
-        });
-      }
+      res.status(201).json({
+        message: "Expense berhasil ditambahkan",
+        addExpense: expense,
+      });
     } else {
-      if (savings >= numericAmount) {
-        const expense = await moneyModel.addExpenses(
-          id_user,
-          provider,
-          numericAmount,
-          tujuan
-        );
-
-        res.status(201).json({
-          message: "Expense berhasil ditambahkan",
-          addExpense: expense,
-        });
-      } else {
-        res.status(400).json({
-          message: "Saldo atau Tabungan tidak cukup",
-        });
-      }
+      res.status(400).json({
+        message: "Saldo atau Tabungan tidak cukup",
+      });
     }
   } catch (err) {
     console.error(err);
@@ -92,9 +70,9 @@ const tambahSaving = async (req, res) => {
   }
   try {
     const id_user = req.user.id_user;
-    const { amount } = req.body;
+    const { id_goal, amount } = req.body;
     const numericAmount = +amount;
-    const saving = await moneyModel.addSavings(id_user, numericAmount);
+    const saving = await moneyModel.addSavings(id_user, id_goal, numericAmount);
     res.status(201).json({
       message: "Saving berhasil ditambahkan",
       addSaving: saving,
