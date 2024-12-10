@@ -71,6 +71,22 @@ const tambahSaving = async (req, res) => {
   try {
     const id_user = req.user.id_user;
     const { id_goal, amount } = req.body;
+    const goal = await moneyModel.queryGoals(id_goal);
+    const current_saving = goal.amount - goal.saving_goal;
+    const finished = goal.finished;
+
+    if (finished === 1) {
+      return res.status(400).json({
+        message: "Goal sudah tercapai",
+      });
+    }
+
+    if (amount > current_saving) {
+      return res.status(400).json({
+        message: "Saving harus lebih kecil atau sama dengan uang sisa",
+      });
+    }
+
     const numericAmount = +amount;
     const saving = await moneyModel.addSavings(id_user, id_goal, numericAmount);
     res.status(201).json({

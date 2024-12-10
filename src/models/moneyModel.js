@@ -81,25 +81,34 @@ const addExpenses = async (id_user, amount, tujuan) => {
   }
 };
 
-const addSavings = async (id_user,id_goal, amount) => {
+const addSavings = async (id_user, id_goal, amount) => {
   try {
     const user = await queryUsers(id_user);
     const savings = user.savings + amount;
-    const [goals] = await pool.query("SELECT * FROM goals WHERE id_goal = ?", [id_goal]);
+    const goal = await queryGoals(id_goal);
+    const sisa = goal.amount - goal.saving_goal - amount;
+    const saving_goal = goal.saving_goal + amount;
 
-    const namaGoal = goals[0].goal;
-    // menambah saving ke tabel goals 
-    await pool.query("UPDATE goals SET saving_goal = ? WHERE id_goal = ?", [
-      amount,
-      id_goal,
-    ]);
-
+    if (sisa === 0) {   
+      // menambah saving ke tabel goals 
+      await pool.query("UPDATE goals SET saving_goal = ?, finished = 1 WHERE id_goal = ?", [
+        saving_goal,
+        id_goal,
+      ]);
+    } else {
+      // menambah saving ke tabel goals 
+      await pool.query("UPDATE goals SET saving_goal = ? WHERE id_goal = ?", [
+        saving_goal,
+        id_goal,
+      ]);
+    }
+    
     const id_history = `h${nanoid(6)}y`;
     await pool.query("UPDATE users SET savings = ? WHERE id_user = ?", [
       savings,
       id_user,
     ]);
-
+    
     const kategori = "savings";
     const label = "savings";
     // menambahkan data ke history
@@ -114,7 +123,9 @@ const addSavings = async (id_user,id_goal, amount) => {
       id_user: id_user,
       savings: savingsUser,
       id_goal: id_goal,
-      goal: namaGoal,
+      goal: goal.goal,
+      saving_goal: saving_goal,
+      sisa_goal: sisa,
       kategori: kategori,
       amount: amount,
       label: label,
@@ -227,16 +238,14 @@ const deleteAllocation = async (id, id_user) => {
 
 const addGoals = async (id_user, goal, amount, target, description) => {
   try {
-    const status = "progress";
     const id_gol = `gol${nanoid(6)}`;
     await pool.query(
-      "INSERT INTO goals (id_goal, id_user, status, goal, amount, target, description) VALUES(?, ?, ? ,? ,?, ?, ?)",
-      [id_gol, id_user, status, goal, amount, target, description]
+      "INSERT INTO goals (id_goal, id_user, goal, amount, target, description) VALUES(? ,? ,? ,?, ?, ?)",
+      [id_gol, id_user, goal, amount, target, description]
     );
     const dataGoal = {
       id_goal: id_gol,
       id_user: id_user,
-      status: status,
       goal: goal,
       amount: amount,
       target: target,
@@ -321,6 +330,14 @@ const updateGoal = async (id, goal, amount, target, description, id_user) => {
   }
 };
 
+const queryGoals = async (id_goal) => {
+  const [result] = await pool.query(
+    "SELECT * FROM goals WHERE id_goal = ?",
+    id_goal,
+  );
+  return result[0];
+};
+
 const queryUsers = async (id_user) => {
   const [results] = await pool.query(
     "SELECT * FROM users WHERE id_user = ?",
@@ -332,6 +349,7 @@ const queryUsers = async (id_user) => {
 module.exports = {
   addIncomes,
   queryUsers,
+  queryGoals,
   addExpenses,
   getHistory,
   addSavings,
