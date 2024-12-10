@@ -286,6 +286,7 @@ const getHome = async (id_user) => {
     nama: user.nama,
     balance: user.balance,
     savings: user.savings,
+    amount_allocation: user.amount_allocation,
     resultHistory,
   };
   return homeData;
