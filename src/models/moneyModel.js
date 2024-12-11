@@ -1,8 +1,7 @@
 const pool = require("../config/db");
-const { nanoid } = require('nanoid');
+const { nanoid } = require("nanoid");
 
-const addIncomes = async (id_user, amount, sumber) => { 
-
+const addIncomes = async (id_user, amount, sumber) => {
   const user = await queryUsers(id_user);
   const balance = user.balance + amount;
   const id_income = `icm${nanoid(6)}`;
@@ -42,14 +41,14 @@ const addIncomes = async (id_user, amount, sumber) => {
   }
 };
 
-const addExpenses = async (id_user, provider, amount, tujuan) => {
+const addExpenses = async (id_user, amount, tujuan) => {
   try {
     const id_expens = `exp${nanoid(6)}`;
     const id_history = `h${nanoid(6)}y`;
     // menambahkan data kedalam expenses
     await pool.query(
-      "INSERT INTO expenses (id_expense, id_user, provider, amount, tujuan) VALUES (?, ?, ?, ?, ?)",
-      [id_expens, id_user, provider, amount, tujuan]
+      "INSERT INTO expenses (id_expense, id_user, amount, tujuan) VALUES (?, ?, ?, ?)",
+      [id_expens, id_user, amount, tujuan]
     );
 
     const kategori = "expense";
@@ -60,28 +59,18 @@ const addExpenses = async (id_user, provider, amount, tujuan) => {
     );
 
     const user = await queryUsers(id_user);
-    // update balance pada user
-    if (provider === "balance") {
-      const balance = user.balance - amount;
-      await pool.query("UPDATE users SET balance = ? WHERE id_user = ?", [
-        balance,
-        id_user,
-      ]);
-    } else {
-      const savings = user.savings - amount;
-      await pool.query("UPDATE users SET savings = ? WHERE id_user = ?", [
-        savings,
-        id_user,
-      ]);
-    }
+    const balance = user.balance - amount;
+    await pool.query("UPDATE users SET balance = ? WHERE id_user = ?", [
+      balance,
+      id_user,
+    ]);
+
     const newUserData = await queryUsers(id_user);
     const balanceUser = newUserData.balance;
-    const savingsUser = newUserData.savings;
     const expense = {
       id_expense: id_expens,
       id_user: id_user,
       balance: balanceUser,
-      savings: savingsUser,
       amount: amount,
       tujuan: tujuan,
       created_at: new Date().toISOString(),
@@ -92,16 +81,34 @@ const addExpenses = async (id_user, provider, amount, tujuan) => {
   }
 };
 
-const addSavings = async (id_user, amount) => {
+const addSavings = async (id_user, id_goal, amount) => {
   try {
     const user = await queryUsers(id_user);
     const savings = user.savings + amount;
+    const goal = await queryGoals(id_goal);
+    const sisa = goal.amount - goal.saving_goal - amount;
+    const saving_goal = goal.saving_goal + amount;
+
+    if (sisa === 0) {   
+      // menambah saving ke tabel goals 
+      await pool.query("UPDATE goals SET saving_goal = ?, finished = 1 WHERE id_goal = ?", [
+        saving_goal,
+        id_goal,
+      ]);
+    } else {
+      // menambah saving ke tabel goals 
+      await pool.query("UPDATE goals SET saving_goal = ? WHERE id_goal = ?", [
+        saving_goal,
+        id_goal,
+      ]);
+    }
+    
     const id_history = `h${nanoid(6)}y`;
     await pool.query("UPDATE users SET savings = ? WHERE id_user = ?", [
       savings,
       id_user,
     ]);
-
+    
     const kategori = "savings";
     const label = "savings";
     // menambahkan data ke history
@@ -115,6 +122,10 @@ const addSavings = async (id_user, amount) => {
     const saving = {
       id_user: id_user,
       savings: savingsUser,
+      id_goal: id_goal,
+      goal: goal.goal,
+      saving_goal: saving_goal,
+      sisa_goal: sisa,
       kategori: kategori,
       amount: amount,
       label: label,
@@ -144,7 +155,7 @@ const addAllocations = async (id_user, kategori, amount) => {
     // menambahkan data ke history
     await pool.query(
       "INSERT INTO history (id_history, id_user ,kategori, amount, label) VALUES (?, ? ,? ,? ,?)",
-      [id_history, id_user, 'allocation', amount, kategori]
+      [id_history, id_user, "allocation", amount, kategori]
     );
     const newUserData = await queryUsers(id_user);
     const newJmlAllocation = newUserData.amount_allocation;
@@ -167,9 +178,12 @@ const updateAllocation = async (id, amount, kategori, id_user) => {
   try {
     const user = await queryUsers(id_user);
     const amountUserBefore = user.amount_allocation;
-    const [allocation] = await pool.query('SELECT * FROM allocations WHERE id_allocation = ?',[id]);
+    const [allocation] = await pool.query(
+      "SELECT * FROM allocations WHERE id_allocation = ?",
+      [id]
+    );
     const amountAllocation = allocation[0].amount;
-    
+
     if (amountAllocation < amount) {
       const currentAmount = amount - amountAllocation;
       const jmlAllocation = user.amount_allocation + currentAmount;
@@ -185,7 +199,7 @@ const updateAllocation = async (id, amount, kategori, id_user) => {
         [jmlAllocation, id_user]
       );
     }
-    const id_history = `h${nanoid(6)}y`
+    const id_history = `h${nanoid(6)}y`;
     await pool.query(
       "UPDATE allocations SET amount = ?, kategori = ? WHERE id_allocation = ?",
       [amount, kategori, id]
@@ -193,15 +207,15 @@ const updateAllocation = async (id, amount, kategori, id_user) => {
     // menambahkan data ke history
     await pool.query(
       "INSERT INTO history (id_history, id_user ,kategori, amount, label) VALUES (?, ? ,? ,? ,?)",
-      [id_history, id_user, 'allocation', amount, kategori]
+      [id_history, id_user, "allocation", amount, kategori]
     );
     const newUser = await queryUsers(id_user);
     const amountUserAfter = newUser.amount_allocation;
     const updateResult = {
       id_allocation: id,
       id_user: id_user,
-      jml_before_update : amountUserBefore,
-      jml_after_update : amountUserAfter,
+      jml_before_update: amountUserBefore,
+      jml_after_update: amountUserAfter,
       amount: amount,
       kategori: kategori,
     };
@@ -213,24 +227,25 @@ const updateAllocation = async (id, amount, kategori, id_user) => {
 
 const deleteAllocation = async (id, id_user) => {
   try {
-    await pool.query('DELETE FROM allocations WHERE id_allocation = ? AND id_user = ?', [id, id_user])
+    await pool.query(
+      "DELETE FROM allocations WHERE id_allocation = ? AND id_user = ?",
+      [id, id_user]
+    );
   } catch (err) {
     throw new Error(err.message);
   }
-}
+};
 
 const addGoals = async (id_user, goal, amount, target, description) => {
   try {
-    const status = "progress";
     const id_gol = `gol${nanoid(6)}`;
     await pool.query(
-      "INSERT INTO goals (id_goal, id_user, status, goal, amount, target, description) VALUES(?, ?, ? ,? ,?, ?, ?)",
-      [id_gol, id_user, status, goal, amount, target, description]
+      "INSERT INTO goals (id_goal, id_user, goal, amount, target, description) VALUES(? ,? ,? ,?, ?, ?)",
+      [id_gol, id_user, goal, amount, target, description]
     );
     const dataGoal = {
       id_goal: id_gol,
       id_user: id_user,
-      status: status,
       goal: goal,
       amount: amount,
       target: target,
@@ -245,11 +260,14 @@ const addGoals = async (id_user, goal, amount, target, description) => {
 
 const deleteGoal = async (id, id_user) => {
   try {
-    await pool.query('DELETE FROM goals WHERE id_goal = ? AND id_user = ?', [id, id_user]);
+    await pool.query("DELETE FROM goals WHERE id_goal = ? AND id_user = ?", [
+      id,
+      id_user,
+    ]);
   } catch (err) {
     throw new Error(err.message);
   }
-}
+};
 
 const getHistory = async (id_user) => {
   const [resultHistory] = await pool.query(
@@ -265,7 +283,7 @@ const getGoal = async (id_user) => {
     [id_user]
   );
   return resultGoal;
-}
+};
 
 const getAllocation = async (id_user) => {
   const [resultAllocation] = await pool.query(
@@ -273,7 +291,7 @@ const getAllocation = async (id_user) => {
     [id_user]
   );
   return resultAllocation;
-}
+};
 
 const getHome = async (id_user) => {
   const user = await queryUsers(id_user);
@@ -304,13 +322,21 @@ const updateGoal = async (id, goal, amount, target, description, id_user) => {
       goal: goal,
       amount: amount,
       target: target,
-      description: description
+      description: description,
     };
     return updateResult;
   } catch (err) {
     throw new Error(err.message);
   }
-}
+};
+
+const queryGoals = async (id_goal) => {
+  const [result] = await pool.query(
+    "SELECT * FROM goals WHERE id_goal = ?",
+    id_goal,
+  );
+  return result[0];
+};
 
 const queryUsers = async (id_user) => {
   const [results] = await pool.query(
@@ -323,6 +349,7 @@ const queryUsers = async (id_user) => {
 module.exports = {
   addIncomes,
   queryUsers,
+  queryGoals,
   addExpenses,
   getHistory,
   addSavings,
