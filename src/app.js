@@ -22,15 +22,15 @@ app.get('/test', async (req, res) => {
   const db = require('./config/db');
   try {
     const [rows] = await db.query('SELECT NOW()');
-    res.json({ message: 'Koneksi berhasil!', data: rows });
+    res.json({ message: 'Connected!', data: rows });
   } catch (error) {
-    console.error('Error koneksi:', error);
-    res.status(500).json({ message: 'Koneksi gagal', error: error.message });
+    console.error('Connection error:', error);
+    res.status(500).json({ message: 'Connection fail', error: error.message });
   }
 });
 
 // Menjalankan server
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
-  console.log(`Server berjalan di PORT : ${port}`);
+  console.log(`Server running in PORT : ${port}`);
 });

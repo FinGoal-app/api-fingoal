@@ -19,7 +19,7 @@ const register = async (req, res) => {
     if (existingUser.length > 0) {
       return res.json({
         success: false,
-        message: "Email sudah terdaftar",
+        message: "Email already registered",
       });
     }
 
@@ -45,7 +45,7 @@ const register = async (req, res) => {
   } catch (err) {
     console.log(err);
     res.status(500).json({
-      message: 'Terjadi kesalahan pada server',
+      message: 'Internal Server Error',
       error: err.message
     });
   }
@@ -63,7 +63,7 @@ const userJwtConfig = async (req, res) => {
     console.log(error.message);
     return res.status(500).json({
       success: false,
-      message: "Terjadi kesalahan pada server",
+      message: "Internal Server Error",
       error: err.message
     });
   }
@@ -83,7 +83,7 @@ const login = async (req, res) => {
     if (!user) {
       return res.status(400).json({
         success: false,
-        message: "Email belum terdaftar",
+        message: "Email not registered",
       });
     }
 
@@ -92,7 +92,7 @@ const login = async (req, res) => {
     if (!isMatched) {
       return res.status(401).json({
         success: false,
-        message: "Password salah",
+        message: "Wrong Password",
       });
     }
 
@@ -106,7 +106,7 @@ const login = async (req, res) => {
       if (err) throw err;
       res.json({
         success: true,
-        message: "Berhasil Login",
+        message: "Login Successful",
         user: {
           id_user: user.id_user,
           nama: user.nama,
@@ -118,7 +118,7 @@ const login = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ 
-      message: "Terjadi kesalahan pada server", 
+      message: "Internal Server Error", 
       error: err.message 
     });
   }
