@@ -102,6 +102,12 @@ const addSavings = async (id_user, id_goal, amount) => {
         id_goal,
       ]);
     }
+
+    const balance = user.balance - amount;
+    await pool.query("UPDATE users SET balance = ? WHERE id_user = ?", [
+      balance,
+      id_user,
+    ]);
     
     const id_history = `h${nanoid(6)}y`;
     await pool.query("UPDATE users SET savings = ? WHERE id_user = ?", [
