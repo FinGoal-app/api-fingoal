@@ -355,10 +355,10 @@ const queryAllocations = async (id_allocation) => {
   return result[0];
 };
 
-const queryAllocationsByIdAndKategori = async (kategori) => {
+const queryAllocationsByIdAndKategori = async (id_user, kategori) => {
   const [result] = await pool.query(
-    "SELECT * FROM allocations WHERE kategori = ?",
-    [kategori]
+    "SELECT * FROM allocations WHERE id_user = ? AND kategori = ?",
+    [id_user, kategori]
   );
   return result;
 };

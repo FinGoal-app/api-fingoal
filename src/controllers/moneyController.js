@@ -110,7 +110,7 @@ const tambahAllocation = async (req, res) => {
 
   const id_user = req.user.id_user;
   const { amount, kategori } = req.body;
-  const getAllocation = await moneyModel.queryAllocationsByIdAndKategori(kategori);
+  const getAllocation = await moneyModel.queryAllocationsByIdAndKategori(id_user, kategori);
   
   if (getAllocation .length > 0) {
     return res.status(400).json({
