@@ -102,6 +102,12 @@ const addSavings = async (id_user, id_goal, amount) => {
         id_goal,
       ]);
     }
+
+    const balance = user.balance - amount;
+    await pool.query("UPDATE users SET balance = ? WHERE id_user = ?", [
+      balance,
+      id_user,
+    ]);
     
     const id_history = `h${nanoid(6)}y`;
     await pool.query("UPDATE users SET savings = ? WHERE id_user = ?", [
@@ -153,6 +159,12 @@ const addAllocations = async (id_user, kategori, amount) => {
       [jmlAllocation, id_user]
     );
     // menambahkan data ke history
+    const balance = user.balance - amount;
+    await pool.query(
+      "UPDATE users SET balance = ? WHERE id_user = ?",
+      [balance, id_user]
+    );
+    // menambahkan data ke history
     await pool.query(
       "INSERT INTO history (id_history, id_user ,kategori, amount, label) VALUES (?, ? ,? ,? ,?)",
       [id_history, id_user, "allocation", amount, kategori]
@@ -187,16 +199,26 @@ const updateAllocation = async (id, amount, kategori, id_user) => {
     if (amountAllocation < amount) {
       const currentAmount = amount - amountAllocation;
       const jmlAllocation = user.amount_allocation + currentAmount;
+      const jmlBalance = user.balance - currentAmount;
       await pool.query(
         "UPDATE users SET amount_allocation = ? WHERE id_user = ?",
         [jmlAllocation, id_user]
       );
+      await pool.query(
+        "UPDATE users SET balance = ? WHERE id_user = ?",
+        [jmlBalance, id_user]
+      );
     } else {
       const currentAmount = amountAllocation - amount;
       const jmlAllocation = user.amount_allocation - currentAmount;
+      const jmlBalance = user.balance + currentAmount;
       await pool.query(
         "UPDATE users SET amount_allocation = ? WHERE id_user = ?",
         [jmlAllocation, id_user]
+      );
+      await pool.query(
+        "UPDATE users SET balance = ? WHERE id_user = ?",
+        [jmlBalance, id_user]
       );
     }
     const id_history = `h${nanoid(6)}y`;
