@@ -199,7 +199,7 @@ const updateAllocation = async (id, amount, kategori, id_user) => {
     if (amountAllocation < amount) {
       const currentAmount = amount - amountAllocation;
       const jmlAllocation = user.amount_allocation + currentAmount;
-      const jmlBalance = user.balance + currentAmount;
+      const jmlBalance = user.balance - currentAmount;
       await pool.query(
         "UPDATE users SET amount_allocation = ? WHERE id_user = ?",
         [jmlAllocation, id_user]
@@ -211,7 +211,7 @@ const updateAllocation = async (id, amount, kategori, id_user) => {
     } else {
       const currentAmount = amountAllocation - amount;
       const jmlAllocation = user.amount_allocation - currentAmount;
-      const jmlBalance = user.balance - currentAmount;
+      const jmlBalance = user.balance + currentAmount;
       await pool.query(
         "UPDATE users SET amount_allocation = ? WHERE id_user = ?",
         [jmlAllocation, id_user]
