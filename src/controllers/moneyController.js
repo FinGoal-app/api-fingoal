@@ -107,9 +107,18 @@ const tambahAllocation = async (req, res) => {
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
+
+  const id_user = req.user.id_user;
+  const { amount, kategori } = req.body;
+  const getAllocation = await moneyModel.queryAllocationsByIdAndKategori(id_user, kategori);
+  
+  if (getAllocation .length > 0) {
+    return res.status(400).json({
+      message: `Kategori ${kategori} already exist`
+    })
+  }
+
   try {
-    const id_user = req.user.id_user;
-    const { amount, kategori } = req.body;
     const numericAmount = +amount;
     const allocation = await moneyModel.addAllocations(
       id_user,

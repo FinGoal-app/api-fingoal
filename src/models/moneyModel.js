@@ -227,6 +227,15 @@ const updateAllocation = async (id, amount, kategori, id_user) => {
 
 const deleteAllocation = async (id, id_user) => {
   try {
+    const user = await queryUsers(id_user);
+    const allocation = await queryAllocations(id);
+    const amount_allocation = user.amount_allocation - allocation.amount;
+    
+    await pool.query(
+      "UPDATE users SET amount_allocation = ? WHERE id_user = ?",
+      [amount_allocation, id_user]
+    );
+    
     await pool.query(
       "DELETE FROM allocations WHERE id_allocation = ? AND id_user = ?",
       [id, id_user]
@@ -338,6 +347,22 @@ const queryGoals = async (id_goal) => {
   return result[0];
 };
 
+const queryAllocations = async (id_allocation) => {
+  const [result] = await pool.query(
+    "SELECT * FROM allocations WHERE id_allocation = ?",
+    id_allocation,
+  );
+  return result[0];
+};
+
+const queryAllocationsByIdAndKategori = async (id_user, kategori) => {
+  const [result] = await pool.query(
+    "SELECT * FROM allocations WHERE id_user = ? AND kategori = ?",
+    [id_user, kategori]
+  );
+  return result;
+};
+
 const queryUsers = async (id_user) => {
   const [results] = await pool.query(
     "SELECT * FROM users WHERE id_user = ?",
@@ -350,6 +375,7 @@ module.exports = {
   addIncomes,
   queryUsers,
   queryGoals,
+  queryAllocationsByIdAndKategori,
   addExpenses,
   getHistory,
   addSavings,
